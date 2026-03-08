@@ -13,9 +13,10 @@ reset:-
    assert(on(b,3,[])),
    assert(on(c,a,[])).
    
-% Compute all possible states of the blocks world
-% state(State) means that State is a valid configuration of blocks
-state(State):-
+% Compute all possible 3-digit states of the blocks world
+% state_helper(State) means that State is a valid 3-digit configuration of blocks
+% (renamed from state/1 to support both BlocksWorld-v0 and BlocksWorld-v1)
+state_helper(State):-
    (block(A);place(A)),dif(A,a),
    (block(B);place(B)),dif(B,b),
    (block(C);place(C)),dif(C,c),
@@ -24,6 +25,13 @@ state(State):-
    dif(A,C),
    grounded(A,B,C),
    atomics_to_string([A,B,C],State).
+
+% state(State): generates all valid 6-digit states (agent_3digit + target_3digit)
+% Used by BlocksWorld-v1 to encode both current agent state and target state
+state(State):-
+   state_helper(Agent),   % three digit state (current agent block positions)
+   state_helper(Target),  % another three digit state (target block positions)
+   atomics_to_string([Agent,Target],State). % together, they make a six digit state
 
 % grounded(A,B,C) means that a configuration of blocks is valid,
 % where Block a is on A, Block b is on B, and Block c is on C.
